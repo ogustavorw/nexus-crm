@@ -6,7 +6,7 @@ import { UpdateClienteDto } from './dto/update-cliente.dto';
 
 @Injectable()
 export class ClienteService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   private mapToEntity(cliente: any): Cliente {
     return {
@@ -17,21 +17,20 @@ export class ClienteService {
     };
   }
 
-  async create(createClienteDto: CreateClienteDto):Promise<Cliente>{
+  async create(createClienteDto: CreateClienteDto): Promise<Cliente> {
     return await this.prisma.cliente.create({
-        data: {
-              nome: createClienteDto.nome,
-              email: createClienteDto.email,
-              telefone: createClienteDto.telefone,
+      data: {
+        nome: createClienteDto.nome,
+        email: createClienteDto.email,
+        telefone: createClienteDto.telefone
+      }
+    })
+  }
 
-        }
-      })
-    }
-
-async findAll(
+  async findAll(
     nome?: string,
     email?: string,
-    telefone?: number,
+    telefone?: string,
     sort: 'nome' | 'email' = 'nome',
     order: 'asc' | 'desc' = 'asc'
   ): Promise<Cliente[]> {
@@ -51,9 +50,10 @@ async findAll(
       };
     }
 
-    if (telefone !== undefined) {
+    if (telefone) {
       where.telefone = {
-        equals: Number(telefone),
+        contains: String(telefone),
+        mode: 'insensitive',
       };
     }
 

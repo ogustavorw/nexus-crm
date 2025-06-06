@@ -28,7 +28,7 @@ export class ClienteController {
   findAll(
     @Query('nome') nome?: string,
     @Query('email') email?: string,
-    @Query('telefone') telefone?: number,
+    @Query('telefone') telefone?: string,
     @Query('sort') sort: 'nome' | 'email' = 'nome',
     @Query('order') order: 'asc' | 'desc' = 'asc'
   ) {
