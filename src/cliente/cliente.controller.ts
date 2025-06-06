@@ -1,18 +1,55 @@
-import { Controller, Get, Post, Body } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Get,
+  Param,
+  Body,
+  Patch,
+  Delete,
+  HttpCode,
+  HttpStatus,
+  Query,
+} from '@nestjs/common';
 import { ClienteService } from './cliente.service';
-import { Cliente } from '@prisma/client';
+import { CreateClienteDto } from './dto/create-cliente.dto';
+import { UpdateClienteDto } from './dto/update-cliente.dto';
 
-@Controller('clientes')
+@Controller('cliente')
 export class ClienteController {
   constructor(private readonly clienteService: ClienteService) {}
 
   @Post()
-  create(@Body() cliente: Omit<Cliente, 'id' | 'createdAt' | 'updatedAt'>) {
-    return this.clienteService.create(cliente);
+  @HttpCode(HttpStatus.CREATED)
+  create(@Body() CreateClienteDto: CreateClienteDto) {
+    return this.clienteService.create(CreateClienteDto);
   }
 
   @Get()
-  findAll() {
-    return this.clienteService.findAll();
+  findAll(
+    @Query('nome') nome?: string,
+    @Query('email') email?: string,
+    @Query('telefone') telefone?: number,
+    @Query('sort') sort: 'nome' | 'email' = 'nome',
+    @Query('order') order: 'asc' | 'desc' = 'asc'
+  ) {
+    return this.clienteService.findAll(nome, email, telefone, sort, order);
+  }
+
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.clienteService.findOne(id);
+  }
+
+  @Patch(':id')
+  update(
+    @Param('id') id: string,
+    @Body() UpdateClienteDto: UpdateClienteDto,
+  ) {
+    return this.clienteService.update(id, UpdateClienteDto);
+  }
+
+  @Delete(':id')
+  remove(@Param('id') id: string) {
+    return this.clienteService.remove(id);
   }
 }
