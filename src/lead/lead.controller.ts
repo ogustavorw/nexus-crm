@@ -1,18 +1,56 @@
-import { Controller, Post, Get, Body } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Get,
+  Param,
+  Body,
+  Patch,
+  Delete,
+  HttpCode,
+  HttpStatus,
+  Query,
+} from '@nestjs/common';
 import { LeadService } from './lead.service';
-import { Lead } from './entities/lead.entity';
+import { UpdateLeadDto } from './dto/update-lead.dto';
+import { CreateLeadDto } from './dto/create-lead.dto';
 
-@Controller('leads')
+
+@Controller('lead')
 export class LeadController {
   constructor(private readonly leadService: LeadService) {}
 
   @Post()
-  create(@Body() data: Omit<Lead, 'id' | 'createdAt' | 'updatedAt'>) {
-    return this.leadService.create(data);
+  @HttpCode(HttpStatus.CREATED)
+  create(@Body() CreateLeadDto: CreateLeadDto) {
+    return this.leadService.create(CreateLeadDto);
   }
 
   @Get()
-  findAll() {
-    return this.leadService.findAll();
+  findAll(
+    @Query('nome') nome?: string,
+    @Query('email') email?: string,
+    @Query('telefone') telefone?: string,
+    @Query('sort') sort: 'nome' | 'email' = 'nome',
+    @Query('order') order: 'asc' | 'desc' = 'asc'
+  ) {
+    return this.leadService.findAll(nome, email, telefone, sort, order);
+  }
+
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.leadService.findOne(id);
+  }
+
+  @Patch(':id')
+  update(
+    @Param('id') id: string,
+    @Body() UpdateLeadDto: UpdateLeadDto,
+  ) {
+    return this.leadService.update(id, UpdateLeadDto);
+  }
+
+  @Delete(':id')
+  remove(@Param('id') id: string) {
+    return this.leadService.remove(id);
   }
 }

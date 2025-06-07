@@ -8,18 +8,18 @@ export class Lead {
   @Column()
   nome: string;
 
-  @Column({ nullable: true })
+  @Column({ unique: true })
   email: string;
 
-  @Column({ nullable: true })
+  @Column()
   telefone: string;
 
-  @Column({ nullable: true })
+  @Column()
   origem: string;
 
-  @Column({ nullable: true })
+  @Column()
   status: string;
 
-  @Column({ nullable: true })
+  @Column()
   clienteId: string;
 }

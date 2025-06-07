@@ -26,11 +26,11 @@ model Cliente {
 model Lead {
   id        String   @id @default(uuid())
   nome      String
-  email     String?
+  email     String
   telefone  String
-  origem    String? // Ex: "Indicação", "Site", "Redes Sociais"
-  status    String? // Ex: "Novo", "Contatado", "Qualificado"
-  clienteId String? // Relacionamento opcional com Cliente
+  origem    String // Ex: "Indicação", "Site", "Redes Sociais"
+  status    String // Ex: "Novo", "Contatado", "Qualificado"
+  clienteId String // Relacionamento opcional com Cliente
   cliente   Cliente? @relation(fields: [clienteId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
