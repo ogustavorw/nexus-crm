@@ -95,4 +95,13 @@ export class LeadService {
     });
     return this.mapToEntity(deletedLead);
   }
+
+  async atualizarStatus(id: string, status: string) {
+    const leadAtualizado = await this.prisma.lead.update({
+      where: { id },
+      data: { status }
+    });
+
+    return this.mapToEntity(leadAtualizado);
+  }
 }

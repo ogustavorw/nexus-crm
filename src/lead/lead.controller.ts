@@ -13,11 +13,12 @@ import {
 import { LeadService } from './lead.service';
 import { UpdateLeadDto } from './dto/update-lead.dto';
 import { CreateLeadDto } from './dto/create-lead.dto';
+import { AtualizarStatusLeadDto } from './dto/att-status-lead.dto';
 
 
 @Controller('lead')
 export class LeadController {
-  constructor(private readonly leadService: LeadService) {}
+  constructor(private readonly leadService: LeadService) { }
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
@@ -52,5 +53,14 @@ export class LeadController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.leadService.remove(id);
+  }
+
+  @Patch(':id/status')
+  @HttpCode(204)
+  async atualizarStatus(
+    @Param('id') id: string,
+    @Body() dto: AtualizarStatusLeadDto
+  ) {
+    await this.leadService.atualizarStatus(id, dto.status);
   }
 }
