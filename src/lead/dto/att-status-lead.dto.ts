@@ -1,9 +1,5 @@
-import { IsString, IsIn } from 'class-validator';
+import { LeadStatus } from '../entities/lead.entity';
 
 export class AtualizarStatusLeadDto {
-  @IsString()
-  @IsIn(['novo', 'contatado', 'interessado', 'fechado'], {
-    message: 'Status inválido',
-  })
-  status: string;
+  status: LeadStatus;
 }

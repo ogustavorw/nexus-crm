@@ -1,13 +1,22 @@
-import {
-    IsString
-} from 'class-validator'
+import { IsString, IsEmail, IsIn } from 'class-validator';
 
 export class CreateLeadDto {
-    @IsString() 
-    nome: string;
-    email: string;
-    telefone: string;
-    origem:string;
-    status: string;
-    clienteId: string;
+  @IsString()
+  nome: string;
+
+  @IsString()
+  @IsEmail()
+  email: string;
+
+  @IsString()
+  telefone: string;
+
+  @IsString()
+  origem: string;
+
+  @IsIn(['novo', 'contatado', 'interessado', 'fechado'])
+  status: 'novo' | 'contatado' | 'interessado' | 'fechado';
+
+  @IsString()
+  clienteId: string;
 }

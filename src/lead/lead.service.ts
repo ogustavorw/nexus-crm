@@ -2,12 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateLeadDto } from './dto/create-lead.dto';
 import { UpdateLeadDto } from './dto/update-lead.dto';
-import { Lead } from './entities/lead.entity';
-
+import { Lead, LeadStatus } from './entities/lead.entity';
 
 @Injectable()
 export class LeadService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   private mapToEntity(lead: any): Lead {
     return {
@@ -16,8 +15,8 @@ export class LeadService {
       email: lead.email,
       telefone: lead.telefone,
       origem: lead.origem,
-      status: lead.status,
-      clienteId: lead.clienteId
+      status: lead.status as LeadStatus,
+      clienteId: lead.clienteId,
     };
   }
 
@@ -31,7 +30,7 @@ export class LeadService {
         status: CreateLeadDto.status,
         clienteId: CreateLeadDto.clienteId
       }
-    })
+    });
   }
 
   async findAll(
@@ -39,7 +38,7 @@ export class LeadService {
     email?: string,
     telefone?: string,
     sort: 'nome' | 'email' = 'nome',
-    order: 'asc' | 'desc' = 'asc'
+    order: 'asc' | 'desc' = 'asc',
   ): Promise<Lead[]> {
     const where: any = {};
 
@@ -64,44 +63,67 @@ export class LeadService {
       };
     }
 
-    const lead = await this.prisma.lead.findMany({
+    const leads = await this.prisma.lead.findMany({
       where,
       orderBy: {
         [sort]: order,
       },
     });
 
-    return lead.map(lead => this.mapToEntity(lead));
+    return leads.map((lead) => this.mapToEntity(lead));
   }
 
   async findOne(id: string): Promise<Lead> {
-    const lead = await this.prisma.lead.findUnique({
-      where: { id },
-    });
+    const lead = await this.prisma.lead.findUnique({ where: { id } });
     return this.mapToEntity(lead);
   }
 
-  async update(id: string, UpdateLeadDto: UpdateLeadDto): Promise<Lead> {
+  async update(id: string, updateLeadDto: UpdateLeadDto): Promise<Lead> {
     const updatedLead = await this.prisma.lead.update({
       where: { id },
-      data: UpdateLeadDto,
+      data: updateLeadDto,
     });
     return this.mapToEntity(updatedLead);
   }
 
   async remove(id: string): Promise<Lead> {
-    const deletedLead = await this.prisma.lead.delete({
-      where: { id },
-    });
+    const deletedLead = await this.prisma.lead.delete({ where: { id } });
     return this.mapToEntity(deletedLead);
   }
 
-  async atualizarStatus(id: string, status: string) {
+  async atualizarStatus(id: string, status: LeadStatus): Promise<Lead> {
     const leadAtualizado = await this.prisma.lead.update({
       where: { id },
-      data: { status }
+      data: { status },
     });
-
     return this.mapToEntity(leadAtualizado);
+  }
+
+  async getLeadsPorStatus(): Promise<{
+    novo: Lead[];
+    contatado: Lead[];
+    interessado: Lead[];
+    fechado: Lead[];
+  }> {
+    const todosLeads = await this.prisma.lead.findMany();
+
+    const leadsAgrupados: Record<LeadStatus, Lead[]> = {
+      novo: [],
+      contatado: [],
+      interessado: [],
+      fechado: []
+    };
+
+    for (const lead of todosLeads) {
+      const status = lead.status as LeadStatus;
+
+      if (status in leadsAgrupados) {
+        leadsAgrupados[status].push(this.mapToEntity(lead));
+      } else {
+        console.warn(`Status desconhecido: ${status}`);
+      }
+    }
+
+    return leadsAgrupados;
   }
 }

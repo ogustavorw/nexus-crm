@@ -13,6 +13,13 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum LeadStatus {
+  novo
+  contatado
+  interessado
+  fechado
+}
+
 model Cliente {
   id        String   @id @default(uuid())
   nome      String
@@ -29,7 +36,7 @@ model Lead {
   email     String
   telefone  String
   origem    String // Ex: "Indicação", "Site", "Redes Sociais"
-  status    String // Ex: "Novo", "Contatado", "Qualificado"
+  status    LeadStatus // Ex: "Novo", "Contatado"
   clienteId String // Relacionamento opcional com Cliente
   cliente   Cliente? @relation(fields: [clienteId], references: [id])
   createdAt DateTime @default(now())

@@ -1,6 +1,10 @@
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
-@Entity()
+import { $Enums } from '@prisma/client';
+
+export type LeadStatus = $Enums.LeadStatus;
+
+@Entity('leads') // Adicione o nome da tabela aqui
 export class Lead {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -17,8 +21,12 @@ export class Lead {
   @Column()
   origem: string;
 
-  @Column()
-  status: string;
+  @Column({
+    type: 'enum',
+    enum: ['novo', 'contatado', 'interessado', 'fechado'],
+    default: 'novo'
+  })
+  status: LeadStatus;
 
   @Column()
   clienteId: string;
