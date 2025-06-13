@@ -3,25 +3,29 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateLeadDto } from './dto/create-lead.dto';
 import { UpdateLeadDto } from './dto/update-lead.dto';
 import { Lead, LeadStatus } from './entities/lead.entity';
+import { LeadStatusMap } from './types/lead-status-map.interface';
+
 
 @Injectable()
 export class LeadService {
   constructor(private prisma: PrismaService) {}
 
-  private mapToEntity(lead: any): Lead {
+  private mapToEntity(lead: any): Lead | null {
+    if (!lead) return null;
+
     return {
       id: lead.id,
       nome: lead.nome,
-      email: lead.email,
+      email: lead.email || null,
       telefone: lead.telefone,
-      origem: lead.origem,
-      status: lead.status as LeadStatus,
-      clienteId: lead.clienteId,
+      origem: lead.origem || null,
+      status: lead.status,
+      clienteId: lead.clienteId
     };
   }
 
   async create(CreateLeadDto: CreateLeadDto): Promise<Lead> {
-    return await this.prisma.lead.create({
+    const createdLead = await this.prisma.lead.create({
       data: {
         nome: CreateLeadDto.nome,
         email: CreateLeadDto.email,
@@ -31,6 +35,12 @@ export class LeadService {
         clienteId: CreateLeadDto.clienteId
       }
     });
+
+    const result = this.mapToEntity(createdLead);
+    if (!result) {
+      throw new Error('Falha ao criar lead');
+    }
+    return result;
   }
 
   async findAll(
@@ -63,17 +73,13 @@ export class LeadService {
       };
     }
 
-    const leads = await this.prisma.lead.findMany({
-      where,
-      orderBy: {
-        [sort]: order,
-      },
-    });
-
-    return leads.map((lead) => this.mapToEntity(lead));
+    const leads = await this.prisma.lead.findMany({ where });
+    return leads
+      .map(this.mapToEntity)
+      .filter((lead): lead is Lead => lead !== null);
   }
 
-  async findOne(id: string): Promise<Lead> {
+  async findOne(id: string): Promise<Lead | null> {
     const lead = await this.prisma.lead.findUnique({ where: { id } });
     return this.mapToEntity(lead);
   }
@@ -83,12 +89,21 @@ export class LeadService {
       where: { id },
       data: updateLeadDto,
     });
-    return this.mapToEntity(updatedLead);
+
+    const result = this.mapToEntity(updatedLead);
+    if (!result) {
+      throw new Error('Falha ao atualizar lead');
+    }
+    return result;
   }
 
   async remove(id: string): Promise<Lead> {
     const deletedLead = await this.prisma.lead.delete({ where: { id } });
-    return this.mapToEntity(deletedLead);
+    const result = this.mapToEntity(deletedLead);
+    if (!result) {
+      throw new Error('Falha ao excluir lead');
+    }
+    return result;
   }
 
   async atualizarStatus(id: string, status: LeadStatus): Promise<Lead> {
@@ -96,34 +111,38 @@ export class LeadService {
       where: { id },
       data: { status },
     });
-    return this.mapToEntity(leadAtualizado);
-  }
 
-  async getLeadsPorStatus(): Promise<{
-    novo: Lead[];
-    contatado: Lead[];
-    interessado: Lead[];
-    fechado: Lead[];
-  }> {
-    const todosLeads = await this.prisma.lead.findMany();
-
-    const leadsAgrupados: Record<LeadStatus, Lead[]> = {
-      novo: [],
-      contatado: [],
-      interessado: [],
-      fechado: []
-    };
-
-    for (const lead of todosLeads) {
-      const status = lead.status as LeadStatus;
-
-      if (status in leadsAgrupados) {
-        leadsAgrupados[status].push(this.mapToEntity(lead));
-      } else {
-        console.warn(`Status desconhecido: ${status}`);
-      }
+    const result = this.mapToEntity(leadAtualizado);
+    if (!result) {
+      throw new Error('Falha ao atualizar status do lead');
     }
-
-    return leadsAgrupados;
+    return result;
   }
+
+  async getLeadsPorStatus(): Promise<LeadStatusMap> {
+  const todosLeads = await this.prisma.lead.findMany();
+
+  const leadsAgrupados: LeadStatusMap = {
+    novo: [],
+    contatado: [],
+    interessado: [],
+    fechado: []
+  };
+
+  for (const lead of todosLeads) {
+    const mappedLead = this.mapToEntity(lead);
+    if (!mappedLead) continue;
+
+    const status = mappedLead.status;
+
+    // Garante que o status é válido
+    if (Object.values(LeadStatus).includes(status as LeadStatus)) {
+      leadsAgrupados[status as keyof LeadStatusMap].push(mappedLead);
+    } else {
+      console.warn(`Status desconhecido: ${status}`);
+    }
+  }
+
+  return leadsAgrupados;
+}
 }

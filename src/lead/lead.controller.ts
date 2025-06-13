@@ -14,6 +14,7 @@ import { LeadService } from './lead.service';
 import { UpdateLeadDto } from './dto/update-lead.dto';
 import { CreateLeadDto } from './dto/create-lead.dto';
 import { AtualizarStatusLeadDto } from './dto/att-status-lead.dto';
+import { LeadStatusMap } from './types/lead-status-map.interface';
 
 
 @Controller('leads')
@@ -64,9 +65,9 @@ export class LeadController {
     await this.leadService.atualizarStatus(id, dto.status);
   }
 
-    @Get('por-status')
-  async getLeadsPorStatus() {
-    return await this.leadService.getLeadsPorStatus();
+  @Get('por-status')
+  async getLeadsPorStatus(): Promise<LeadStatusMap> {
+    return this.leadService.getLeadsPorStatus();
   }
-  
+
 }

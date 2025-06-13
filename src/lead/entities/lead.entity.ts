@@ -1,33 +1,16 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+export enum LeadStatus {
+  novo = 'novo',
+  contatado = 'contatado',
+  interessado = 'interessado',
+  fechado = 'fechado'
+}
 
-import { $Enums } from '@prisma/client';
-
-export type LeadStatus = $Enums.LeadStatus;
-
-@Entity('leads') // Adicione o nome da tabela aqui
-export class Lead {
-  @PrimaryGeneratedColumn('uuid')
+export interface Lead {
   id: string;
-
-  @Column()
   nome: string;
-
-  @Column({ unique: true })
-  email: string;
-
-  @Column()
+  email: string | null;
   telefone: string;
-
-  @Column()
-  origem: string;
-
-  @Column({
-    type: 'enum',
-    enum: ['novo', 'contatado', 'interessado', 'fechado'],
-    default: 'novo'
-  })
-  status: LeadStatus;
-
-  @Column()
+  origem: string | null;
+  status: string; // Vai ser validado como LeadStatus
   clienteId: string;
 }
