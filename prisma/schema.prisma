@@ -37,7 +37,7 @@ model Lead {
   telefone  String
   origem    String // Ex: "Indicação", "Site", "Redes Sociais"
   status    LeadStatus // Ex: "Novo", "Contatado"
-  clienteId String // Relacionamento opcional com Cliente
+  clienteId String? // Relacionamento opcional com Cliente
   cliente   Cliente? @relation(fields: [clienteId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

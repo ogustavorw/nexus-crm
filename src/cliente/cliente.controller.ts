@@ -13,10 +13,11 @@ import {
 import { ClienteService } from './cliente.service';
 import { CreateClienteDto } from './dto/create-cliente.dto';
 import { UpdateClienteDto } from './dto/update-cliente.dto';
+import { Cliente } from './entities/cliente.entity';
 
 @Controller('clientes')
 export class ClienteController {
-  constructor(private readonly clienteService: ClienteService) {}
+  constructor(private readonly clienteService: ClienteService) { }
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
@@ -33,6 +34,11 @@ export class ClienteController {
     @Query('order') order: 'asc' | 'desc' = 'asc'
   ) {
     return this.clienteService.findAll(nome, email, telefone, sort, order);
+  }
+
+  @Get('clientes/nome/:nome')
+  async findByNome(@Param('nome') nome: string): Promise<Cliente[]> {
+    return this.clienteService.findByNome(nome);
   }
 
   @Get(':id')

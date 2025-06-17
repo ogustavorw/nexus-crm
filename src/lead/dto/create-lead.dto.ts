@@ -17,6 +17,6 @@ export class CreateLeadDto {
   @IsIn(['novo', 'contatado', 'interessado', 'fechado'])
   status: 'novo' | 'contatado' | 'interessado' | 'fechado';
 
-  @IsString()
-  clienteId: string;
+  @IsString({ each: true })
+  clienteId?: string; // Agora é opcional
 }

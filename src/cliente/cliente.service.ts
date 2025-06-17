@@ -67,6 +67,17 @@ export class ClienteService {
     return client.map(cliente => this.mapToEntity(cliente));
   }
 
+  async findByNome(nome: string): Promise<Cliente[]> {
+    return this.prisma.cliente.findMany({
+      where: {
+        nome: {
+          contains: nome,
+          mode: 'insensitive',
+        },
+      },
+    });
+  }
+
   async findOne(id: string): Promise<Cliente> {
     const cliente = await this.prisma.cliente.findUnique({
       where: { id },

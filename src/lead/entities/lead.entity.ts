@@ -12,5 +12,5 @@ export interface Lead {
   telefone: string;
   origem: string | null;
   status: string; // Vai ser validado como LeadStatus
-  clienteId: string;
+  clienteId: string | null;
 }
