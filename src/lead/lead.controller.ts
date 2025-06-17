@@ -29,9 +29,7 @@ export class LeadController {
 
   @Get('por-status')
   async getLeadsPorStatus(): Promise<LeadStatusMap> {
-    console.log('✅ Chamou o controller /leads/por-status');
     const dados = await this.leadService.getLeadsPorStatus();
-    console.log('Dados enviados ao frontend:', dados);
     return dados;
   }
 
