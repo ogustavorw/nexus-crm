@@ -8,7 +8,7 @@ import { LeadStatusMap } from './types/lead-status-map.interface';
 
 @Injectable()
 export class LeadService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   private mapToEntity(lead: any): Lead | null {
     if (!lead) return null;
@@ -120,29 +120,29 @@ export class LeadService {
   }
 
   async getLeadsPorStatus(): Promise<LeadStatusMap> {
-  const todosLeads = await this.prisma.lead.findMany();
+    const todosLeads = await this.prisma.lead.findMany();
 
-  const leadsAgrupados: LeadStatusMap = {
-    novo: [],
-    contatado: [],
-    interessado: [],
-    fechado: []
-  };
+    const leadsAgrupados: LeadStatusMap = {
+      novo: [],
+      contatado: [],
+      interessado: [],
+      fechado: []
+    };
 
-  for (const lead of todosLeads) {
-    const mappedLead = this.mapToEntity(lead);
-    if (!mappedLead) continue;
+    for (const lead of todosLeads) {
+      const mappedLead = this.mapToEntity(lead);
+      if (!mappedLead) continue;
 
-    const status = mappedLead.status;
+      const status = mappedLead.status;
 
-    // Garante que o status é válido
-    if (Object.values(LeadStatus).includes(status as LeadStatus)) {
-      leadsAgrupados[status as keyof LeadStatusMap].push(mappedLead);
-    } else {
-      console.warn(`Status desconhecido: ${status}`);
+      // Garante que o status é válido
+      if (Object.values(LeadStatus).includes(status as LeadStatus)) {
+        leadsAgrupados[status as keyof LeadStatusMap].push(mappedLead);
+      } else {
+        console.warn(`Status desconhecido: ${status}`);
+      }
     }
-  }
 
-  return leadsAgrupados;
-}
+    return leadsAgrupados;
+  }
 }

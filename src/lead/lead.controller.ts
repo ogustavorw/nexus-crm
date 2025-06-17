@@ -27,6 +27,14 @@ export class LeadController {
     return this.leadService.create(CreateLeadDto);
   }
 
+  @Get('por-status')
+  async getLeadsPorStatus(): Promise<LeadStatusMap> {
+    console.log('✅ Chamou o controller /leads/por-status');
+    const dados = await this.leadService.getLeadsPorStatus();
+    console.log('Dados enviados ao frontend:', dados);
+    return dados;
+  }
+
   @Get()
   findAll(
     @Query('nome') nome?: string,
@@ -36,6 +44,16 @@ export class LeadController {
     @Query('order') order: 'asc' | 'desc' = 'asc'
   ) {
     return this.leadService.findAll(nome, email, telefone, sort, order);
+
+  }
+
+  @Patch(':id/status')
+  @HttpCode(204)
+  async atualizarStatus(
+    @Param('id') id: string,
+    @Body() dto: AtualizarStatusLeadDto
+  ) {
+    await this.leadService.atualizarStatus(id, dto.status);
   }
 
   @Get(':id')
@@ -56,18 +74,8 @@ export class LeadController {
     return this.leadService.remove(id);
   }
 
-  @Patch(':id/status')
-  @HttpCode(204)
-  async atualizarStatus(
-    @Param('id') id: string,
-    @Body() dto: AtualizarStatusLeadDto
-  ) {
-    await this.leadService.atualizarStatus(id, dto.status);
-  }
 
-  @Get('por-status')
-  async getLeadsPorStatus(): Promise<LeadStatusMap> {
-    return this.leadService.getLeadsPorStatus();
-  }
+
+
 
 }
