@@ -25,6 +25,11 @@ export class ClienteController {
     return this.clienteService.create(CreateClienteDto);
   }
 
+  @Get('/nome/:nome')
+  async findByNome(@Param('nome') nome: string): Promise<Cliente[]> {
+    return this.clienteService.findByNome(nome);
+  }
+
   @Get()
   findAll(
     @Query('nome') nome?: string,
@@ -36,10 +41,7 @@ export class ClienteController {
     return this.clienteService.findAll(nome, email, telefone, sort, order);
   }
 
-  @Get('clientes/nome/:nome')
-  async findByNome(@Param('nome') nome: string): Promise<Cliente[]> {
-    return this.clienteService.findByNome(nome);
-  }
+
 
   @Get(':id')
   findOne(@Param('id') id: string) {
